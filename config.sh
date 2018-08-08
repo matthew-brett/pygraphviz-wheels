@@ -40,11 +40,15 @@ function build_expat {
         return
     fi
     local out_dir=$(fetch_unpack "https://github.com/libexpat/libexpat/archive/${EXPAT_TAG}.tar.gz")
+    if [ -n "$IS_OSX" ]; then
+        brew install automake autoconf libtool
+    fi
     (cd $out_dir/expat \
         && ./buildconf.sh \
         && ./configure --without-xmlwf --without-docbook --prefix=$BUILD_PREFIX \
         && make \
-        && make install) && touch expat_stamp
+        && make install)
+    touch expat_stamp
 }
 
 function build_graphviz {
