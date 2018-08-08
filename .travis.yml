@@ -1,0 +1,109 @@
+language: python
+python: 3.5
+sudo: required
+dist: trusty
+services: docker
+osx_image: xcode6.4
+
+env:
+  global:
+      - REPO_DIR=pygraphviz
+      # Remember to edit appveyor.yml too
+      # Also see DAILY_COMMIT below
+      - BUILD_COMMIT=master
+      - PLAT=x86_64
+      - WHEELHOUSE_UPLOADER_USERNAME=travis-worker
+      - BUILD_DEPENDS=
+      - TEST_DEPENDS="mock nose doctest-ignore-unicode"
+      # Following generated with
+      # travis encrypt -r matthew-brett/pygraphviz-wheels WHEELHOUSE_UPLOADER_SECRET=<the api key>
+      - secure: "bnzXC9YgzD72XppQLS+pNf8sCN/cbfeVxwGvt036oQxbvOAfKxGQ8R/g69SRP5XZGL+pTVGNMoImA7Ced4l7uXep/ny/ZtdKil+vmvK11IEDwLgAOS0AKdoagSke2S6+FEPAtD/JQQHE+6hrWA71M9YE/Qo6c9VyD7i8cNIPgApcRvunD6M3sX0C3w4Jyp5vUUVt/uE2f8lPLEDFSgVbl9AUvvl4Ho7q9qLmeKKw9UtvD5VUtMwzfIsgu6+E5fSfLHDNQ16LMMn6QG6/fZAPpdkXuhtax1E/CjY0Z1KTmbtr59rRdNQIIsR6zFJ81mdcelz6FY4dN75K75KeDva+NzFzNpwPYheVMgJJz2k6wAnUiyl2ipd78JJmvN3Uz47YT4OV5/JTBB+eR/+W6wkle9HtLGDlTqAZsk05CP1b1Eb0UVgLbb+9H7i3/zrBss+AmEGxB9TyHUkhiT0LjuuWXzK0pg9l+SFKTBAIHNFBMS+oPCh9N8ZLCJmhse5FAHiTp6xIWPJH4uEit2btI1NNBTx9Nelknt0mPMi3Iyl9Vm/gmKZf0fbMvU3j1/cqsgWxsXmsjakwfzpmqeQ7PI/3Fo6XGbUbRaF1FjTykh4KvwvTGN1s+aglk2hYKJMdodhu3VADBUwE0Vc240FXbbMiaiT2YxSHdyUSPRapRercZ+E="
+      # Commit when running from daily branch
+      - DAILY_COMMIT=master
+
+matrix:
+  exclude:
+    # Exclude the default Python 3.5 build
+    - python: 3.5
+  include:
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=2.7
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=3.5
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=3.6
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=3.7
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=2.7
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=2.7
+        - UNICODE_WIDTH=16
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=2.7
+        - PLAT=i686
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=2.7
+        - PLAT=i686
+        - UNICODE_WIDTH=16
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.5
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.5
+        - PLAT=i686
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.6
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.6
+        - PLAT=i686
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.7
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.7
+        - PLAT=i686
+
+before_install:
+    - if [ "$TRAVIS_BRANCH" == "master" ]; then
+          CONTAINER="pre-release";
+          BUILD_COMMIT=${DAILY_COMMIT:-$BUILD_COMMIT};
+      else
+          CONTAINER=wheels;
+          UPLOAD_ARGS="--no-update-index";
+      fi
+    - source multibuild/common_utils.sh
+    - source multibuild/travis_steps.sh
+    - before_install
+
+install:
+    # Maybe get and clean and patch source
+    - clean_code $REPO_DIR $BUILD_COMMIT
+    - build_wheel $REPO_DIR $PLAT
+
+script:
+    - install_run $PLAT
+
+after_success:
+    # Upload wheels to Rackspace container
+    - pip install wheelhouse-uploader
+    - python -m wheelhouse_uploader upload --local-folder
+          ${TRAVIS_BUILD_DIR}/wheelhouse/
+          $UPLOAD_ARGS
+          $CONTAINER
