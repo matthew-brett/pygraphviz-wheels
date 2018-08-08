@@ -8,6 +8,7 @@ BZIP2_VERSION="${BZIP2_VERSION:-1.0.6}"
 BZIP_URL=https://web.archive.org/web/20180624184806/http://bzip.org
 EXPAT_TAG=50f4e16
 GRAPHVIZ_TAG=stable_release_2.40.1
+GPERF_VERSION=3.1
 
 function build_bzip2 {
     if [ -n "$IS_OSX" ]; then return; fi  # OSX has bzip2 libs already
