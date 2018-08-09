@@ -40,9 +40,6 @@ function build_expat {
         return
     fi
     local out_dir=$(fetch_unpack "https://github.com/libexpat/libexpat/archive/${EXPAT_TAG}.tar.gz")
-    if [ -n "$IS_OSX" ]; then
-        brew install automake autoconf libtool
-    fi
     (cd $out_dir/expat \
         && ./buildconf.sh \
         && ./configure --without-xmlwf --without-docbook --prefix=$BUILD_PREFIX \
@@ -58,11 +55,13 @@ function build_graphviz {
     build_swig
     build_freetype
     build_fontconfig
+    echo "Finished fontconfig"
     build_expat
+    echo "Finished expat"
     # Unfortunately, this always gives the latest version
     local out_dir=$(fetch_unpack https://graphviz.gitlab.io/pub/graphviz/stable/SOURCES/graphviz.tar.gz)
     (cd $out_dir \
-        && ./configure --prefix=$BUILD_PREFIX \
+        && ./configure --prefix=$BUILD_PREFIX --enable-php=no \
         && make \
         && make install)
     touch graphviz-stamp
