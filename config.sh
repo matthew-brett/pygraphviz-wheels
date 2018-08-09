@@ -35,10 +35,21 @@ function build_fontconfig {
     build_simple fontconfig $FONTCONFIG_VERSION https://www.freedesktop.org/software/fontconfig/release
 }
 
+function latest_autotools {
+    if [ -e latest-autotools-stamp ]; then
+        return
+    fi
+    if [ -n "$IS_OSX" ]; then
+        brew upgrade autoconf automake libtool || true
+    fi
+    touch latest-autotools-stamp
+}
+
 function build_expat {
     if [ -e expat-stamp ]; then
         return
     fi
+    latest_autotools
     local out_dir=$(fetch_unpack "https://github.com/libexpat/libexpat/archive/${EXPAT_TAG}.tar.gz")
     (cd $out_dir/expat \
         && ./buildconf.sh \
