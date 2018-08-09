@@ -86,6 +86,10 @@ function pre_build {
 
 function run_tests {
     # Runs tests on installed distribution from an empty directory
+    if [ -z "$IS_OSX" ]; then
+        # Still need graphviz command line utilities for tests
+        apt-get install -y graphviz
+    fi
     python --version
     nosetests pygraphviz
 }
