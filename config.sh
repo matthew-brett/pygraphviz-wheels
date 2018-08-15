@@ -3,7 +3,7 @@
 FREETYPE_VERSION=2.9.1
 LIBUUID_VERSION=1.0.3
 FONTCONFIG_VERSION=2.13.0
-PKG_CONFIG_VERSIN=0.29.2
+PKG_CONFIG_VERSION=0.29.2
 EXPAT_TAG=50f4e16
 GRAPHVIZ_COMMIT=f54ac2c9  # 2.38
 GPERF_VERSION=3.1
@@ -38,7 +38,7 @@ function upgrade_pkg_config {
         return
     fi
     if [ -z "$IS_OSX" ]; then
-        build_simple pkg-config $PKG_CONFIG_VERSION https://pkg-config.freedesktop.org/releases .tar.gz --with-internal-glib
+        build_simple pkg-config $PKG_CONFIG_VERSION https://pkg-config.freedesktop.org/releases tar.gz --with-internal-glib
     fi
     touch ${FUNCNAME[0]}-stamp
 }
