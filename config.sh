@@ -43,6 +43,16 @@ function upgrade_pkg_config {
     touch ${FUNCNAME[0]}-stamp
 }
 
+function build_flex {
+    if [ -e ${FUNCNAME[0]}-stamp ]; then
+        return
+    fi
+    if [ -z "$IS_OSX" ]; then
+        yum install -y flex
+    fi
+    touch ${FUNCNAME[0]}-stamp
+}
+
 function build_expat {
     if [ -e expat-stamp ]; then
         return
@@ -66,6 +76,7 @@ function build_graphviz {
     build_fontconfig
     build_expat
     upgrade_pkg_config
+    build_flex
     git clone https://gitlab.com/graphviz/graphviz.git
     (cd graphviz \
         && git checkout $GRAPHVIZ_COMMIT \
