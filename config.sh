@@ -82,6 +82,7 @@ function build_graphviz {
         && git checkout $GRAPHVIZ_COMMIT \
         && ./autogen.sh \
         && ./configure --prefix=$BUILD_PREFIX --enable-php=no \
+                --enable-python=no --enable-perl=no \
         && make \
         && make install)
     touch graphviz-stamp
